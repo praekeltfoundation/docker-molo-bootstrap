@@ -11,6 +11,7 @@ env:
 before_install:
   - sudo apt-get update
   - sudo apt-get install -qy -o Dpkg::Options::="--force-confold" docker-engine
+install: [] # Travis default is to install requirements.txt here; do not want
 
 before_script:
   - image="$(awk '$1 == "FROM" { print $2; exit }' onbuild/Dockerfile)"
