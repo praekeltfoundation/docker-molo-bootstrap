@@ -1,0 +1,7 @@
+# Base Molo package, pulls in most big things like Wagtail, Django, Pillow
+molo.core == 4.3.2
+
+# Common packages used in most deployments
+psycopg2
+django_compressor
+celery < 4
