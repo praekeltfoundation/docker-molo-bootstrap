@@ -16,9 +16,13 @@ install: [] # Travis default is to install requirements.txt here; do not want
 before_script:
   - image="$(awk '$1 == "FROM" { print $2; exit }' onbuild/Dockerfile)"
   - version="$(sed -nE 's/\s*molo\.core\s*==\s*([^\s\;]+).*/\1/p' requirements.txt)"
+  - cache_image="${image}:${version}-onbuild"
+  # Pull existing image to use as caches
+  - docker pull "$cache_image"
 script:
-  - docker build -t "$image" .
-  - docker build -t "${image}:onbuild" onbuild
+  # Use existing latest images as caches, with --pull to pull latest FROM image
+  - docker build --pull --cache-from "$cache_image" -t "$image" .
+  - docker build --cache-from "$cache_image" -t "${image}:onbuild" onbuild
 after_script:
   - docker images
 
