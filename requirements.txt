@@ -1,5 +1,5 @@
 # Base Molo package, pulls in most big things like Wagtail, Django, Pillow
-molo.core==5.2.5
+molo.core==5.3.0
 
 # Common packages used in most deployments
 psycopg2
