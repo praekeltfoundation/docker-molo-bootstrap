@@ -4,7 +4,7 @@ FROM praekeltfoundation/django-bootstrap:py2
 RUN apt-get-install.sh gettext
 
 ARG VERSION=5
-COPY ${VERSION}.txt common.txt /requirements/
+COPY requirements/${VERSION}.txt requirements/common.txt /requirements/
 RUN pip install -r /requirements/${VERSION}.txt -r /requirements/common.txt
 
 ENV PROJECT_ROOT /app/
