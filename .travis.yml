@@ -6,6 +6,9 @@ env:
   global:
     - REGISTRY_USER=praekeltorgdeploy
     - secure: "PZ+6VKOiC45K0fKgrRn8UAzxDvJ4fkkuM53VO5htez0hUt1w7zL0nApbbg+9J81vSHdHyAv6N/ln2Yn9mysHB0d6x9LUjYKFVCI+XnZTTv0QqiykrDR/CVSWiKVkbCjoRCPvQsOTx47Hb5WFpCUp3EmUpfJgJ9w9BNlYaEvJZYF1BZCByb3ATZ5+DWSM4AczaW7Z4YUivF7lLsMOgjtxwk7fTjI1Ufel9yD43aVAaSBai1jTGyHTm1k7Aez1xqT9HHkEkrZ1THuV08vzLaCtjqBirANLj7FPx0/W2pJOp4DGQio0c86lpjm+PCrvHg1syqZzY6M/mtgZ5KlIhVVk/7bMe/MzZAg8oJV2ndzKvkVYK2RYohY+CXuGWeoVDYLEMZc6lJXDrWufe01Alcu/BZ9ZwDD5K73sYbd/wLKk5LXizHGGN8JIwAILD8xwNxx6d23z8r2nlDjwys5ujhj3SPxwSfutJrvU6RLQGSh7ExYz2K6KJ68u4Mf26F+iXiqu+3YLZ8NQMcrOJtcKuCp0WfO88xGsvZB1zPb1x0Ee1e/3LcUAreHRQGXmYq6P1N9zR7gipHfrlfUiFsOH0O1vovOsSlz6gPhhREeqvcVldFlYZBKK8ibQ9O2MOM2HyBh2ICfrbFLV8DvcH5sQGwwNaauFog/GHunfKQScuP12EZU="
+  matrix:
+    - VERSION=5 TAG_LATEST=1
+    - VERSION=4 TAG_LATEST=
 
 # Update Docker Engine
 before_install:
@@ -17,11 +20,11 @@ before_script:
   - image="$(awk '$1 == "FROM" { print $2; exit }' onbuild/Dockerfile)"
   - version="$(sed -nE 's/\s*molo\.core\s*==\s*([^\s\;]+).*/\1/p' requirements.txt)"
   # Pull existing image to use as caches
-  - docker pull "${image}:onbuild"
+  - docker pull "${image}:${VERSION}-onbuild"
 script:
   # Use existing latest images as caches, with --pull to pull latest FROM image
-  - docker build --pull --cache-from "${image}:onbuild" -t "$image" .
-  - docker build --cache-from "${image}:onbuild" -t "${image}:onbuild" onbuild
+  - docker build --pull --cache-from "${image}:${VERSION}-onbuild" --build-arg VERSION="$VERSION" -t "$image" .
+  - docker build --cache-from "${image}:onbuild" -t "${image}:${VERSION}-onbuild" onbuild
 after_script:
   - docker images
 
@@ -30,6 +33,6 @@ before_deploy:
   - docker login -u "$REGISTRY_USER" -p "$REGISTRY_PASS"
 deploy:
   provider: script
-  script: dcd --tag-version "$version" --tag-semver --tag-latest "$image" "${image}:onbuild"
+  script: dcd --tag-version "$version" --tag-semver ${TAG_LATEST:+--tag-latest} "$image" "${image}:onbuild"
   on:
     branch: master
