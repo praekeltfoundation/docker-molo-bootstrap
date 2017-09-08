@@ -2,6 +2,9 @@ sudo: required
 services: [docker]
 language: python
 
+# Only build master branch. PRs still get built.
+branches: {only: [master]}
+
 env:
   global:
     - REGISTRY_USER=praekeltorgdeploy
