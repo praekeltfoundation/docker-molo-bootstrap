@@ -32,7 +32,7 @@ before_script:
   - if [ -n "$MOLO_BRANCH" ]; then
       version="$(git -C molo rev-parse --short HEAD)";
       cache_from="${image}:${SOURCE_BRANCH}-onbuild";
-      args="--file dev.Dockerfile";
+      args="--file dev.dockerfile";
     else
       version="$(sed -nE 's/^molo\.core==(\S+).*/\1/p' "requirements/$VERSION.txt")";
       cache_from="${image}:${VERSION}-onbuild";
