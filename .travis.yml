@@ -32,11 +32,11 @@ before_script:
   - if [ -n "$SOURCE_BRANCH" ]; then
       version="$(git -C molo rev-parse --short HEAD)";
       cache_from="${image}:${SOURCE_BRANCH}-onbuild";
-      args="--file dev.Dockerfile"
-    else;
+      args="--file dev.Dockerfile";
+    else
       version="$(sed -nE 's/^molo\.core==(\S+).*/\1/p' "requirements/$VERSION.txt")";
       cache_from="${image}:${VERSION}-onbuild";
-      args="--build-arg VERSION=$VERSION"
+      args="--build-arg VERSION=$VERSION";
     fi
   - echo "Building image '$image' for molo.core version '$version' ($VERSION)..."
   # Pull existing image to use as caches
