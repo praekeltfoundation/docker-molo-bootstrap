@@ -12,11 +12,10 @@ env:
   matrix:
     - VERSION=5 TAG_LATEST=1
     - VERSION=4 TAG_LATEST=
-    # The built-from-source images are included here just to ensure changes to
-    # this repo do not break those builds. They are actually deployed from the
+    # This built-from-source image is included here just to ensure changes to
+    # this repo do not break that build. The image is actually deployed from the
     # praekelt/molo repo.
-    - VERSION=5 MOLO_BRANCH=develop
-    - VERSION=4 MOLO_BRANCH=4x
+    - MOLO_BRANCH=develop
 
 # Update Docker Engine
 before_install:
@@ -30,15 +29,16 @@ install:
 before_script:
   - image="$(awk '$1 == "FROM" { print $2; exit }' onbuild/Dockerfile)"
   - if [ -n "$MOLO_BRANCH" ]; then
-      version="$(git -C molo rev-parse --short HEAD)";
+      git_sha="$(git -C molo rev-parse --short HEAD)";
       cache_from="${image}:${SOURCE_BRANCH}-onbuild";
       args="--file dev.dockerfile";
+      echo "Building image '$image' with molo.core branch '$MOLO_BRANCH' at '$git_sha'...";
     else
       version="$(sed -nE 's/^molo\.core==(\S+).*/\1/p' "requirements/$VERSION.txt")";
       cache_from="${image}:${VERSION}-onbuild";
       args="--build-arg VERSION=$VERSION";
+      echo "Building image '$image' with molo.core version '$version'...";
     fi
-  - echo "Building image '$image' for molo.core version '$version' ($VERSION)..."
   # Pull existing image to use as caches
   - docker pull "$cache_from" || true
 script:
