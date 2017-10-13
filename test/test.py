@@ -28,3 +28,11 @@ class TestApp:
                     m.Equals('text/html; charset=utf-8'))
         assert_that(response.text,
                     m.Contains('<title>Log in | Django site admin</title>'))
+
+
+class TestCeleryWorker:
+    pass  # TODO
+
+
+class TestCeleryBeat:
+    pass  # TODO
