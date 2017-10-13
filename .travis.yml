@@ -1,6 +1,7 @@
 sudo: required
 services: [docker]
 language: python
+python: '3.6'
 
 env:
   global:
@@ -14,7 +15,8 @@ env:
 before_install:
   - sudo apt-get update
   - sudo apt-get install -qy -o Dpkg::Options::="--force-confold" docker-ce
-install: [] # Travis default is to install requirements.txt here; do not want
+install:
+  - pip install -r test/requirements.txt
 
 before_script:
   - image="$(awk '$1 == "FROM" { print $2; exit }' onbuild/Dockerfile)"
@@ -26,6 +28,10 @@ script:
   # Use existing latest images as caches, with --pull to pull latest FROM image
   - docker build --pull --cache-from "$cache_from" --build-arg VERSION="$VERSION" -t "$image" .
   - docker build --cache-from "$cache_from" -t "${image}:onbuild" onbuild
+  # Run tests
+  - cd test
+  - docker build -t "${image}:test" .
+  - pytest -v --molo-bootstrap-image "${image}:test" test.py
 after_script:
   - docker images
 
