@@ -2,6 +2,9 @@ sudo: required
 services: [docker]
 language: python
 
+# Only build master branch. PRs still get built.
+branches: {only: [master]}
+
 env:
   global:
     - REGISTRY_USER=praekeltorgdeploy
@@ -9,22 +12,42 @@ env:
   matrix:
     - VERSION=5 TAG_LATEST=1
     - VERSION=4 TAG_LATEST=
+    # This built-from-source image is included here just to ensure changes to
+    # this repo do not break that build. The image is actually deployed from the
+    # praekelt/molo repo.
+    - MOLO_BRANCH=develop
 
 # Update Docker Engine
 before_install:
   - sudo apt-get update
   - sudo apt-get install -qy -o Dpkg::Options::="--force-confold" docker-ce
-install: [] # Travis default is to install requirements.txt here; do not want
+install:
+  - if [ -n "$MOLO_BRANCH" ]; then
+      git clone --depth=1 -b "$MOLO_BRANCH" https://github.com/praekelt/molo.git;
+    fi
 
 before_script:
   - image="$(awk '$1 == "FROM" { print $2; exit }' onbuild/Dockerfile)"
-  - version="$(sed -nE 's/^molo\.core==(\S+).*/\1/p' "requirements/$VERSION.txt")"
-  - cache_from="${image}:${VERSION}-onbuild"
+  - if [ -n "$MOLO_BRANCH" ]; then
+      git_sha="$(git -C molo rev-parse --short HEAD)";
+      cache_from="${image}:${SOURCE_BRANCH}-onbuild";
+      args="--file dev.dockerfile";
+      echo "Building image '$image' with molo.core branch '$MOLO_BRANCH' at '$git_sha'...";
+    else
+      version="$(sed -nE 's/^molo\.core==(\S+).*/\1/p' "requirements/$VERSION.txt")";
+      cache_from="${image}:${VERSION}-onbuild";
+      args="--build-arg VERSION=$VERSION";
+      echo "Building image '$image' with molo.core version '$version'...";
+    fi
   # Pull existing image to use as caches
   - docker pull "$cache_from" || true
 script:
+  - if [ -n "$MOLO_BRANCH" ]; then
+      (cd molo; python setup.py bdist_wheel);
+      cp -r molo/dist .;
+    fi
   # Use existing latest images as caches, with --pull to pull latest FROM image
-  - docker build --pull --cache-from "$cache_from" --build-arg VERSION="$VERSION" -t "$image" .
+  - docker build --pull --cache-from "$cache_from" $args -t "$image" .
   - docker build --cache-from "$cache_from" -t "${image}:onbuild" onbuild
 after_script:
   - docker images
@@ -37,3 +60,4 @@ deploy:
   script: dcd --version "$version" --version-semver ${TAG_LATEST:+--version-latest} "$image" "${image}:onbuild"
   on:
     branch: master
+    condition: -z "$MOLO_BRANCH"
