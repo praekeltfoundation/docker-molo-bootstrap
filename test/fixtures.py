@@ -21,13 +21,7 @@ raw_amqp_container, amqp_container = clean_container_fixtures(
 
 
 class MoloBootstrapContainer(ContainerBase):
-    def wait_for_start(self):
-        # FIXME: Starting a Molo app takes much longer than the default timeout
-        # value of 10 seconds. We should make it easier to adjust this timeout
-        # value.
-        if self.wait_matchers:
-            self.wait_for_logs_matching(
-                UnorderedLinesMatcher(*self.wait_matchers), timeout=60)
+    WAIT_TIMEOUT = 60
 
     @classmethod
     def for_fixture(
