@@ -42,7 +42,7 @@ class MoloBootstrapContainer(ContainerBase):
         if publish_port:
             kwargs['ports'] = {'8000/tcp': ('127.0.0.1',)}
 
-        return cls(name, DMB_IMAGE, wait_lines, kwargs)
+        return cls(name, DMB_IMAGE, wait_lines, create_kwargs=kwargs)
 
     @classmethod
     def make_fixture(cls, fixture_name, name, *args, **kw):
