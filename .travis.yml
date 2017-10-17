@@ -21,6 +21,7 @@ before_install:
   - sudo apt-get install -qy -o Dpkg::Options::="--force-confold" docker-ce
 install:
   - pip install -r test/requirements.txt
+  - pip install flake8
 
 before_script:
   - image="$(awk '$1 == "FROM" { print $2; exit }' onbuild/Dockerfile)"
@@ -36,6 +37,7 @@ script:
   - cd test
   - docker build -t "${image}:test" .
   - pytest -v --molo-bootstrap-image "${image}:test" test.py
+  - flake8 .
 after_script:
   - docker images
 

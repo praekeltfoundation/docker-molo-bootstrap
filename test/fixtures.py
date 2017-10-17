@@ -5,7 +5,6 @@ from seaworthy.containers.provided import (
     PostgreSQLContainer, RabbitMQContainer)
 from seaworthy.pytest.fixtures import (
     clean_container_fixtures, wrap_container_fixture)
-from seaworthy.logs import UnorderedLinesMatcher
 
 # This is all pretty much copied from the django-bootstrap tests
 
