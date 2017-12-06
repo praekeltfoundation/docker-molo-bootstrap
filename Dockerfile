@@ -1,4 +1,4 @@
-FROM praekeltfoundation/django-bootstrap:py2
+FROM praekeltfoundation/django-bootstrap:py2.7-stretch
 
 # Install gettext for translations
 RUN apt-get-install.sh gettext
