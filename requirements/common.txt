@@ -1,4 +1,4 @@
 # Common packages used in most deployments
-psycopg2
+psycopg2==2.7.3.2
 django_compressor
-celery < 4
+celery==3.1.25  # pyup: <4.0
