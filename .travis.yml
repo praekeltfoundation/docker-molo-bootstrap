@@ -7,9 +7,10 @@ env:
     - REGISTRY_USER=praekeltorgdeploy
     - secure: "PZ+6VKOiC45K0fKgrRn8UAzxDvJ4fkkuM53VO5htez0hUt1w7zL0nApbbg+9J81vSHdHyAv6N/ln2Yn9mysHB0d6x9LUjYKFVCI+XnZTTv0QqiykrDR/CVSWiKVkbCjoRCPvQsOTx47Hb5WFpCUp3EmUpfJgJ9w9BNlYaEvJZYF1BZCByb3ATZ5+DWSM4AczaW7Z4YUivF7lLsMOgjtxwk7fTjI1Ufel9yD43aVAaSBai1jTGyHTm1k7Aez1xqT9HHkEkrZ1THuV08vzLaCtjqBirANLj7FPx0/W2pJOp4DGQio0c86lpjm+PCrvHg1syqZzY6M/mtgZ5KlIhVVk/7bMe/MzZAg8oJV2ndzKvkVYK2RYohY+CXuGWeoVDYLEMZc6lJXDrWufe01Alcu/BZ9ZwDD5K73sYbd/wLKk5LXizHGGN8JIwAILD8xwNxx6d23z8r2nlDjwys5ujhj3SPxwSfutJrvU6RLQGSh7ExYz2K6KJ68u4Mf26F+iXiqu+3YLZ8NQMcrOJtcKuCp0WfO88xGsvZB1zPb1x0Ee1e/3LcUAreHRQGXmYq6P1N9zR7gipHfrlfUiFsOH0O1vovOsSlz6gPhhREeqvcVldFlYZBKK8ibQ9O2MOM2HyBh2ICfrbFLV8DvcH5sQGwwNaauFog/GHunfKQScuP12EZU="
   matrix:
-    - VERSION=6 TAG_LATEST=1
-    - VERSION=5 TAG_LATEST=
-    - VERSION=4 TAG_LATEST=
+    - VERSION=6 TAG_LATEST=1 PYTHON_TAG=py2.7 PYTHON_LATEST=1
+    - VERSION=5 TAG_LATEST=  PYTHON_TAG=py2.7 PYTHON_LATEST=1
+    - VERSION=4 TAG_LATEST=  PYTHON_TAG=py2.7 PYTHON_LATEST=1
+    - VERSION=6 TAG_LATEST=1 PYTHON_TAG=py3.6 PYTHON_LATEST=
 
 # Update Docker Engine
 before_install:
@@ -25,6 +26,7 @@ before_script:
   - docker pull "$cache_from" || true
 script:
   # Use existing latest images as caches, with --pull to pull latest FROM image
+  # NOTE: adding py3.6 as optional will break image caching for the py3.6 image because we pull py2.7 to use as a cache
   - docker build --pull --cache-from "$cache_from" --build-arg VERSION="$VERSION" -t "$image" .
   - docker build --cache-from "$cache_from" -t "${image}:onbuild" onbuild
 after_script:
@@ -34,7 +36,11 @@ before_deploy:
   - pip install docker-ci-deploy==0.3.0
   - docker login -u "$REGISTRY_USER" -p "$REGISTRY_PASS"
 deploy:
-  provider: script
-  script: dcd --version "$version" --version-semver ${TAG_LATEST:+--version-latest} "$image" "${image}:onbuild"
-  on:
-    branch: master
+  - provider: script
+    script: dcd --tag "$PYTHON_TAG" ${PYTHON_LATEST:+""} --version "$version" --version-semver ${TAG_LATEST:+--version-latest} "$image"
+    on:
+      branch: master
+  - provider: script
+    script: dcd --tag "$PYTHON_TAG-onbuild" ${PYTHON_LATEST:+onbuild} --version "$version" --version-semver ${TAG_LATEST:+--version-latest} "${image}:onbuild"
+    on:
+      branch: master
