@@ -1,4 +1,5 @@
-FROM praekeltfoundation/django-bootstrap:py2
+ARG PYTHON_TAG=py2
+FROM praekeltfoundation/django-bootstrap:${PYTHON_TAG}
 
 # Install gettext for translations
 RUN apt-get-install.sh gettext
