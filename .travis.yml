@@ -34,7 +34,7 @@ after_script:
 
 before_deploy:
   - pip install docker-ci-deploy==0.3.0
-  - docker login -u "$REGISTRY_USER" -p "$REGISTRY_PASS"
+  - echo -n $REGISTRY_PASS | docker login --username "$REGISTRY_USER" --password-stdin
 deploy:
   - provider: script
     script: dcd --tag "$PYTHON_TAG" ${PYTHON_LATEST:+""} --version "$version" --version-semver ${TAG_LATEST:+--version-latest} "$image"
