@@ -1,6 +1,11 @@
 sudo: required
 services: [docker]
 language: python
+python: '3.6'
+
+# Only build the master branch (PRs still get built)
+branches:
+  only: [master]
 
 env:
   global:
@@ -16,7 +21,9 @@ env:
 before_install:
   - sudo apt-get update
   - sudo apt-get install -qy -o Dpkg::Options::="--force-confold" docker-ce
-install: [] # Travis default is to install requirements.txt here; do not want
+install:
+  - pip install -r test/requirements.txt
+  - pip install flake8
 
 before_script:
   - image="$(awk '$1 == "FROM" { print $2; exit }' onbuild/Dockerfile)"
@@ -29,6 +36,11 @@ script:
   # NOTE: adding py3.6 as optional will break image caching for the py3.6 image because we pull py2.7 to use as a cache
   - docker build --pull --cache-from "$cache_from" --build-arg VERSION="$VERSION" -t "$image" .
   - docker build --cache-from "$cache_from" -t "${image}:onbuild" onbuild
+  # Run tests
+  - cd test
+  - docker build -t "${image}:test" .
+  - pytest -v --molo-bootstrap-image "${image}:test" test.py
+  - flake8 .
 after_script:
   - docker images
 

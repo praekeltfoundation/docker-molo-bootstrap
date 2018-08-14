@@ -1,0 +1,4 @@
+git+https://github.com/praekeltfoundation/seaworthy.git@6505122004786dc9164415e3eb1d862cd8bc7135#egg=seaworthy
+pytest>=3
+requests
+testtools
