@@ -1,1 +1,1 @@
-molo.core==6.9.24  # pyup: >=6,<7
+molo.core==6.10.0  # pyup: >=6,<7
