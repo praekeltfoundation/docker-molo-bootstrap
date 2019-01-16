@@ -20,7 +20,7 @@ install: [] # Travis default is to install requirements.txt here; do not want
 before_script:
   - image="$(awk '$1 == "FROM" { print $2; exit }' onbuild/Dockerfile)"
   - version="$(sed -nE 's/^molo\.core==(\S+).*/\1/p' "requirements/$VERSION.txt")"
-  - cache_from="${image}:${VERSION}-${PYTHON_TAG}-onbuild"
+  - cache_from="${image}:${VERSION}-${PYTHON_TAG}-onbuild-prom"
   # Pull existing image to use as caches
   - docker pull "$cache_from" || true
 script:
@@ -35,10 +35,10 @@ before_deploy:
   - echo -n $REGISTRY_PASS | docker login --username "$REGISTRY_USER" --password-stdin
 deploy:
   - provider: script
-    script: dcd --tag "$PYTHON_TAG" ${PYTHON_LATEST:+""} --version "$version" --version-semver ${TAG_LATEST:+--version-latest} "$image"
+    script: dcd --tag "$PYTHON_TAG-prom" --version "$version" --version-semver ${TAG_LATEST:+--version-latest} "$image"
     on:
-      branch: master
+      branch: prom-testing
   - provider: script
-    script: dcd --tag "$PYTHON_TAG-onbuild" ${PYTHON_LATEST:+onbuild} --version "$version" --version-semver ${TAG_LATEST:+--version-latest} "${image}:onbuild"
+    script: dcd --tag "$PYTHON_TAG-onbuild-prom" --version "$version" --version-semver ${TAG_LATEST:+--version-latest} "${image}:onbuild"
     on:
-      branch: master
+      branch: prom-testing

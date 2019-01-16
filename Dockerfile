@@ -1,5 +1,5 @@
 ARG PYTHON_TAG=py3.6-stretch
-FROM praekeltfoundation/django-bootstrap:${PYTHON_TAG}
+FROM praekeltfoundation/django-bootstrap:${PYTHON_TAG}-prom
 
 # Install gettext for translations
 RUN apt-get-install.sh gettext
