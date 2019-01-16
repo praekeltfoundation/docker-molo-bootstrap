@@ -1,5 +1,5 @@
-sudo: required
-services: [docker]
+dist: xenial
+services: docker
 language: python
 
 env:
@@ -15,21 +15,16 @@ env:
     - VERSION=7 TAG_LATEST= PYTHON_TAG=py3.6 PYTHON_LATEST=1
     - VERSION=8 TAG_LATEST=1 PYTHON_TAG=py3.6 PYTHON_LATEST=1
 
-# Update Docker Engine
-before_install:
-  - sudo apt-get update
-  - sudo apt-get install -qy -o Dpkg::Options::="--force-confold" docker-ce
 install: [] # Travis default is to install requirements.txt here; do not want
 
 before_script:
   - image="$(awk '$1 == "FROM" { print $2; exit }' onbuild/Dockerfile)"
   - version="$(sed -nE 's/^molo\.core==(\S+).*/\1/p' "requirements/$VERSION.txt")"
-  - cache_from="${image}:${VERSION}-onbuild"
+  - cache_from="${image}:${VERSION}-${PYTHON_TAG}-onbuild"
   # Pull existing image to use as caches
   - docker pull "$cache_from" || true
 script:
   # Use existing latest images as caches, with --pull to pull latest FROM image
-  # NOTE: adding py3.6 as optional will break image caching for the py3.6 image because we pull py2.7 to use as a cache
   - docker build --pull --cache-from "$cache_from" --build-arg VERSION="$VERSION" -t "$image" .
   - docker build --cache-from "$cache_from" -t "${image}:onbuild" onbuild
 after_script:
