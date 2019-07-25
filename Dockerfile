@@ -4,7 +4,7 @@ FROM praekeltfoundation/django-bootstrap:${PYTHON_TAG}
 # Install gettext for translations
 RUN apt-get-install.sh gettext
 
-ARG VERSION=8
+ARG VERSION=9
 COPY requirements/${VERSION}.txt requirements/common.txt /requirements/
 RUN pip install -r /requirements/${VERSION}.txt -r /requirements/common.txt
 
