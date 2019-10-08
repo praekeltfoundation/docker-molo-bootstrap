@@ -1,1 +1,1 @@
-molo.core==10.0.0  # pyup: >=10,<11
+molo.core==10.0.1  # pyup: >=10,<11
