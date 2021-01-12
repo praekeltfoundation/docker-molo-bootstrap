@@ -16,6 +16,7 @@ env:
     - VERSION=8 TAG_LATEST=1 PYTHON_TAG=py3.6 PYTHON_LATEST=1
     - VERSION=9 TAG_LATEST=1 PYTHON_TAG=py3.6 PYTHON_LATEST=1
     - VERSION=10 TAG_LATEST=1 PYTHON_TAG=py3.6 PYTHON_LATEST=1
+    - VERSION=11 TAG_LATEST=1 PYTHON_TAG=py3.6 PYTHON_LATEST=1
 
 install: [] # Travis default is to install requirements.txt here; do not want
 
