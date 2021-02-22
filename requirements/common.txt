@@ -1,4 +1,3 @@
 # Common packages used in most deployments
 psycopg2
 django_compressor
-celery < 4
